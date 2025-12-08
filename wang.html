@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贵州羊肉粉 - 文化宣传</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Microsoft YaHei'; }
+        body { background: #f9f3e9; color: #333; line-height: 1.6; }
+        .container { width: 90%; max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+        
+        /* 导航栏 */
+        header { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
+        .logo { font-size: 24px; font-weight: bold; color: #c43e1c; }
+        .user-info { display: flex; align-items: center; }
+        .user-info span { margin-right: 15px; color: #c43e1c; }
+        .auth-buttons button { background: #c43e1c; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-left: 10px; }
+        
+        /* 登录页面 - 保持不变 */
+        .login-page { min-height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .login-page h1 { font-size: 36px; color: #c43e1c; margin-bottom: 20px; }
+        .login-page p { font-size: 18px; color: #666; max-width: 600px; margin-bottom: 40px; }
+        .login-box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 20px rgba(0,0,0,0.1); width: 90%; max-width: 400px; }
+        .login-box h2 { margin-bottom: 20px; color: #333; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .submit-btn { background: #c43e1c; color: white; border: none; padding: 12px; border-radius: 4px; width: 100%; cursor: pointer; margin-top: 10px; font-size: 16px; }
+        .form-footer { text-align: center; margin-top: 15px; }
+        .form-footer a { color: #c43e1c; text-decoration: none; }
+        
+        /* 主页面（登录后显示） */
+        .main-section { display: none; }
+        .hero { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url("1.jpg"); background-size: cover; color: white; padding: 80px 0; text-align: center; }
+        .hero h1 { font-size: 36px; margin-bottom: 20px; }
+        .hero p { font-size: 18px; margin-bottom: 20px; opacity: 0.9; }
+        .search-box { display: flex; max-width: 500px; margin: 20px auto; }
+        .search-box input { flex: 1; padding: 12px; border: none; border-radius: 4px 0 0 4px; }
+        .search-box button { background: #c43e1c; color: white; border: none; padding: 0 20px; border-radius: 0 4px 4px 0; cursor: pointer; }
+        
+        /* 分类直接显示在主页面 */
+        .categories-section { text-align: center; padding: 60px 0; }
+        .categories-section h2 { color: #8b4513; font-size: 32px; margin-bottom: 40px; }
+        .categories-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; max-width: 800px; margin: 0 auto; }
+        .category-card { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease; cursor: pointer; }
+        .category-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(196, 62, 28, 0.2); }
+        .category-card h3 { color: #c43e1c; margin-bottom: 15px; font-size: 22px; }
+        .category-card p { color: #666; margin-bottom: 0; }
+        
+        /* 内容子页面 */
+        .content-page { display: none; }
+        .content-page.active { display: block; animation: fadeIn 0.5s ease; }
+        .page-header { background: linear-gradient(135deg, #c43e1c, #8b4513); color: white; padding: 60px 0; text-align: center; }
+        .page-header h2 { font-size: 36px; margin-bottom: 15px; }
+        .page-header p { font-size: 18px; max-width: 700px; margin: 0 auto; opacity: 0.9; }
+        .back-to-main { background: white; color: #c43e1c; border: 2px solid #c43e1c; padding: 10px 25px; border-radius: 4px; cursor: pointer; font-size: 16px; margin: 20px 0; }
+        .back-to-main:hover { background: #c43e1c; color: white; }
+        
+        /* 竖向内容列表 */
+        .vertical-content { padding: 40px 0; max-width: 900px; margin: 0 auto; }
+        .content-item { background: white; border-radius: 12px; padding: 30px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease; }
+        .content-item:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .content-header { display: flex; align-items: flex-start; margin-bottom: 20px; }
+        .content-image { width: 200px; height: 150px; border-radius: 8px; object-fit: cover; margin-right: 25px; flex-shrink: 0; }
+        .content-text { flex: 1; }
+        .content-text h3 { color: #c43e1c; margin-bottom: 10px; font-size: 22px; }
+        .content-text p { color: #666; line-height: 1.8; margin-bottom: 15px; }
+        .content-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .content-tag { background: #f0f0f0; color: #666; padding: 4px 12px; border-radius: 15px; font-size: 12px; }
+        
+        /* 搜索结果 - 竖向 */
+        .search-results { margin: 40px 0; display: none; }
+        .search-results h3 { color: #8b4513; margin-bottom: 20px; font-size: 24px; text-align: center; }
+        .result-item { background: white; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .result-header { display: flex; align-items: flex-start; margin-bottom: 15px; }
+        .result-image { width: 150px; height: 120px; border-radius: 8px; object-fit: cover; margin-right: 20px; flex-shrink: 0; }
+        .result-text { flex: 1; }
+        .result-text h4 { color: #c43e1c; margin-bottom: 8px; font-size: 18px; }
+        
+        /* 模态框 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 400px; position: relative; animation: modalSlideIn 0.3s ease; }
+        .close-btn { position: absolute; top: 15px; right: 15px; font-size: 24px; cursor: pointer; }
+        
+        /* 页脚 */
+        footer { background: #333; color: white; text-align: center; padding: 30px 0; margin-top: 50px; }
+        
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* 无内容提示 */
+        .no-content { text-align: center; padding: 60px; color: #666; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">贵州羊肉粉</div>
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <span id="userName">欢迎，用户</span>
+                    <button id="logoutBtn">退出登录</button>
+                </div>
+                <div class="auth-buttons" id="authButtons">
+                    <button id="loginBtn">登录</button>
+                    <button id="registerBtn">注册</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 登录页面（未登录时显示） -->
+    <section class="login-page" id="loginPage">
+        <div class="container">
+            <h1>欢迎来到贵州羊肉粉文化平台</h1>
+            <p>探索贵州传统美食的魅力，了解羊肉粉的历史、派系、文化和制作工艺。登录后即可查看完整内容。</p>
+            
+            <div class="login-box">
+                <h2>用户登录</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>用户名</label>
+                        <input type="text" name="username" required placeholder="请输入用户名">
+                    </div>
+                    <div class="form-group">
+                        <label>密码</label>
+                        <input type="password" name="password" required placeholder="请输入密码">
+                    </div>
+                    <button type="submit" class="submit-btn">登录</button>
+                </form>
+                <div class="form-footer">
+                    <p>还没有账号？<a href="#" id="toRegisterLink">立即注册</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 主页面（登录后显示） -->
+    <section class="main-section" id="mainSection">
+        <!-- 欢迎区域 -->
+        <section class="hero">
+            <div class="container">
+                <h1>贵州羊肉粉 - 美食文化瑰宝</h1>
+                <p>源自贵州的传统美食，鲜香浓郁的汤底，精选羊肉与爽滑米粉的完美结合</p>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="搜索羊肉粉相关内容...">
+                    <button id="searchBtn">搜索</button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 分类区域 -->
+        <section class="categories-section">
+            <div class="container">
+                <h2>选择您感兴趣的分类</h2>
+                <div class="categories-grid">
+                    <div class="category-card" data-category="history">
+                        <h3>历史根源</h3>
+                        <p>探索贵州羊肉粉的悠久历史和文化传承</p>
+                    </div>
+                    <div class="category-card" data-category="culture">
+                        <h3>食用文化</h3>
+                        <p>探索羊肉粉在贵州人民生活中的重要地位</p>
+                    </div>
+                    <div class="category-card" data-category="schools">
+                        <h3>派系特色</h3>
+                        <p>了解不同地域的羊肉粉特色和制作风格</p>
+                    </div>
+                    <div class="category-card" data-category="production">
+                        <h3>制作工艺</h3>
+                        <p>了解羊肉粉的精湛制作工艺和传统技艺</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 搜索结果区域 -->
+        <div class="container">
+            <div class="search-results" id="searchResults">
+                <h3>搜索结果</h3>
+                <div id="resultsContainer"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 历史根源内容页面 -->
+    <section class="content-page" id="historyPage">
+        <div class="page-header">
+            <div class="container">
+                <h2>历史根源</h2>
+                <p>探索贵州羊肉粉的悠久历史和文化传承，了解这一美食的起源和发展历程</p>
+            </div>
+        </div>
+        <div class="container">
+            <button class="back-to-main" id="backFromHistoryBtn">返回主页</button>
+            <div class="vertical-content" id="historyContent"></div>
+        </div>
+    </section>
+
+    <!-- 派系内容页面 -->
+    <section class="content-page" id="schoolsPage">
+        <div class="page-header">
+            <div class="container">
+                <h2>派系特色</h2>
+                <p>了解贵州羊肉粉的不同地域特色和制作风格，探索各派系的独特魅力</p>
+            </div>
+        </div>
+        <div class="container">
+            <button class="back-to-main" id="backFromSchoolsBtn">返回主页</button>
+            <div class="vertical-content" id="schoolsContent"></div>
+        </div>
+    </section>
+
+    <!-- 食用文化内容页面 -->
+    <section class="content-page" id="culturePage">
+        <div class="page-header">
+            <div class="container">
+                <h2>食用文化</h2>
+                <p>探索羊肉粉在贵州人民日常生活中的重要地位和丰富的食用文化</p>
+            </div>
+        </div>
+        <div class="container">
+            <button class="back-to-main" id="backFromCultureBtn">返回主页</button>
+            <div class="vertical-content" id="cultureContent"></div>
+        </div>
+    </section>
+
+    <!-- 制作工艺内容页面 -->
+    <section class="content-page" id="productionPage">
+        <div class="page-header">
+            <div class="container">
+                <h2>制作工艺</h2>
+                <p>了解贵州羊肉粉的精湛制作工艺和传统技艺，感受美食背后的匠心独运</p>
+            </div>
+        </div>
+        <div class="container">
+            <button class="back-to-main" id="backFromProductionBtn">返回主页</button>
+            <div class="vertical-content" id="productionContent"></div>
+        </div>
+    </section>
+
+    <!-- 注册模态框 -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeRegister">&times;</span>
+            <h2>用户注册</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label>确认密码</label>
+                    <input type="password" name="confirmPassword" required>
+                </div>
+                <button type="submit" class="submit-btn">注册</button>
+            </form>
+            <div class="form-footer">
+                <p>已有账号？<a href="#" id="toLoginLink">立即登录</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 贵州羊肉粉文化宣传网站</p>
+        </div>
+    </footer>
+
+    <script>
+        // 羊肉粉数据
+        const lambNoodleData = [
+            {
+                id: 1,
+                title: "贵州羊肉粉的历史起源",
+                content: "贵州羊肉粉起源于北宋，由吴景鸾创制，结合了当地饮食文化，经过数百年的演变，形成了独特的风味和多样的地域流派。羊肉粉是贵州省的传统特色小吃，属于黔菜系，已有300多年的历史。其起源可以追溯到北宋时期，创始人吴景鸾在江西地区声名显赫，晚年移居到贵州（当时称为罗氏鬼国），受到当地百姓的热烈欢迎。他结合当地的饮食习惯和草药知识，创造了羊肉粉这一美食，旨在祛湿养生，逐渐形成了以新鲜羊肉和米粉为主料的特色小吃。",
+                image: "4.jpg",
+                category: "history",
+                tags: ["历史", "起源", "清朝"]
+            },
+            {
+                id: 2,
+                title: "水城羊肉粉派系",
+                content: "水城羊肉粉是贵州省六盘水市的特色小吃，以羊肉和米粉为主料，味道香辣浓郁，深受当地人喜爱。水城羊肉粉起源于20世纪80年代初，最初水城人对羊肉的接受度不高，羊肉主要用于民间祭祀。随着时间的推移，人们逐渐摸索出用香料和调料来去除羊肉的膻味，使得羊肉粉开始流行，成为当地早餐的主食之一。",
+                image: "2.jpg",
+                category: "schools",
+                tags: ["水城", "派系", "特色"]
+            },
+            {
+                id: 3,
+                title: "遵义羊肉粉特色",
+                content: "遵义羊肉粉是贵州省遵义市的特色小吃，以鲜羊肉熬汤配米粉，选用黔北麻羊和虾子辣椒制作红油。已有300余年历史，清代中叶闻名遐迩，贵州各地均产羊肉粉，唯遵义羊肉粉驰名。全市现有4000余家门店，日均消费量达160万碗，并保留冬至食用传统习俗。该小吃于2017年获评'中国羊肉粉美食之都'称号，曾获第二届'中华名小吃'称号。",
+                image: "3.jpg",
+                category: "schools",
+                tags: ["遵义", "特色", "醇厚"]
+            },
+            {
+                id: 4,
+                title: "羊肉粉的日常食用文化",
+                content: "在贵州，羊肉粉是当地人早餐的首选。清晨，街头巷尾的羊肉粉店总是座无虚席。",
+                image: "5.jpg",
+                category: "culture",
+                tags: ["早餐", "日常", "习俗"]
+            },
+            {
+                id: 5,
+                title: "节日庆典中的羊肉粉",
+                content: "在重要的节日和庆典中，羊肉粉扮演着特殊角色。冬至时期，北方人民会食用饺子，象征着团圆和温暖。但在贵州，冬至时家家户户都会吃羊肉，因为羊肉被认为具有滋补和驱寒的效果。",
+                image: "6.jpg",
+                category: "culture",
+                tags: ["节日", "庆典", "春节"]
+            },
+            {
+                id: 6,
+                title: "羊肉粉的制作工艺",
+                content: "制作贵州羊肉粉的步骤如下：原料准备：选用新鲜的羊肉，切块焯水去血水，粉条泡软备用。煮羊肉：在锅中加入水，放入羊肉块、姜片、葱段、料酒等，煮至羊肉熟透后捞出，晾凉切片。煮粉条：将泡软的粉条放入沸水中煮熟，捞出过凉水备用。组合：在碗中放入煮好的粉条，铺上羊肉片，加入调好的汤底、羊油、辣椒油、香菜等调料，即可享用。这样制作的羊肉粉味道鲜美，具有地方特色。",
+                image: "7.jpg",
+                category: "production",
+                tags: ["制作", "工艺", "熬制"]
+            }
+        ];
+
+        // 页面状态
+        let currentUser = null;
+
+        // DOM元素
+        const loginPage = document.getElementById('loginPage');
+        const mainSection = document.getElementById('mainSection');
+        const authButtons = document.getElementById('authButtons');
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const searchResults = document.getElementById('searchResults');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const searchBtn = document.getElementById('searchBtn');
+        const searchInput = document.getElementById('searchInput');
+        const loginForm = document.getElementById('loginForm');
+        const toRegisterLink = document.getElementById('toRegisterLink');
+        const toLoginLink = document.getElementById('toLoginLink');
+        const registerModal = document.getElementById('registerModal');
+        const closeRegister = document.getElementById('closeRegister');
+        const registerForm = document.getElementById('registerForm');
+        
+        // 页面元素
+        const categoryCards = document.querySelectorAll('.category-card');
+        const historyPage = document.getElementById('historyPage');
+        const schoolsPage = document.getElementById('schoolsPage');
+        const culturePage = document.getElementById('culturePage');
+        const productionPage = document.getElementById('productionPage');
+        const historyContent = document.getElementById('historyContent');
+        const schoolsContent = document.getElementById('schoolsContent');
+        const cultureContent = document.getElementById('cultureContent');
+        const productionContent = document.getElementById('productionContent');
+        const backFromHistoryBtn = document.getElementById('backFromHistoryBtn');
+        const backFromSchoolsBtn = document.getElementById('backFromSchoolsBtn');
+        const backFromCultureBtn = document.getElementById('backFromCultureBtn');
+        const backFromProductionBtn = document.getElementById('backFromProductionBtn');
+
+        // 初始化：显示登录页面
+        function initializePage() {
+            // 清除localStorage以测试登录功能
+            // localStorage.removeItem('lambNoodleUser');
+            
+            const savedUser = localStorage.getItem('lambNoodleUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showMainPage();
+            } else {
+                showLoginPage();
+            }
+        }
+
+        // 显示登录页面
+        function showLoginPage() {
+            loginPage.style.display = 'flex';
+            mainSection.style.display = 'none';
+            hideAllContentPages();
+            authButtons.style.display = 'flex';
+            userInfo.style.display = 'none';
+        }
+
+        // 显示主页面
+        function showMainPage() {
+            loginPage.style.display = 'none';
+            mainSection.style.display = 'block';
+            hideAllContentPages();
+            authButtons.style.display = 'none';
+            userInfo.style.display = 'flex';
+            userName.textContent = `欢迎，${currentUser.username}`;
+            searchResults.style.display = 'none';
+            searchInput.value = '';
+        }
+
+        // 隐藏所有内容页面
+        function hideAllContentPages() {
+            historyPage.classList.remove('active');
+            schoolsPage.classList.remove('active');
+            culturePage.classList.remove('active');
+            productionPage.classList.remove('active');
+        }
+
+        // 显示内容页面
+        function showContentPage(pageId) {
+            mainSection.style.display = 'none';
+            hideAllContentPages();
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // 登录功能 - 保持不变（使用localStorage模拟登录）
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = this.username.value.trim();
+            const password = this.password.value.trim();
+            
+            if (username && password) {
+                currentUser = {
+                    username: username,
+                    loginTime: new Date().toISOString()
+                };
+                
+                localStorage.setItem('lambNoodleUser', JSON.stringify(currentUser));
+                showMainPage();
+                this.reset();
+            } else {
+                alert('请输入用户名和密码');
+            }
+        });
+
+        // 注册功能 - 修改为连接到后端数据库
+        registerForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = this.querySelector('[name="username"]').value.trim();
+            const email = this.querySelector('[name="email"]').value.trim();
+            const password = this.querySelector('[name="password"]').value.trim();
+            const confirmPassword = this.querySelector('[name="confirmPassword"]').value.trim();
+            
+            if (!username || !email || !password || !confirmPassword) {
+                alert('请填写所有字段');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('两次输入的密码不一致');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('密码至少需要6位');
+                return;
+            }
+            
+            // 显示加载状态
+            const submitBtn = this.querySelector('.submit-btn');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = '注册中...';
+            submitBtn.disabled = true;
+            
+            try {
+                console.log('正在发送注册请求到后端...');
+                
+                // 发送到您的server.js后端（端口3001）
+               const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('后端响应:', result);
+                
+                if (result.success) {
+                    alert('✅ 注册成功！您的信息已保存到数据库\n用户名: ' + username + '\nID: ' + result.userId);
+                    // 关闭注册模态框
+                    registerModal.style.display = 'none';
+                    // 重置表单
+                    this.reset();
+                    // 自动切换到登录界面
+                    document.getElementById('loginBtn').click();
+                } else {
+                    alert('❌ 注册失败: ' + result.message);
+                }
+            } catch (error) {
+                console.error('注册错误:', error);
+                alert('⚠️ 连接服务器失败！请确保:\n1. 已启动后端服务器 (运行: node server.js)\n2. 服务器地址: http://localhost:3001\n3. 没有其他程序占用3001端口');
+            } finally {
+                // 恢复按钮状态
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // 退出登录
+        logoutBtn.addEventListener('click', function() {
+            if (confirm('确定要退出登录吗？')) {
+                localStorage.removeItem('lambNoodleUser');
+                currentUser = null;
+                showLoginPage();
+            }
+        });
+
+        // 导航栏登录按钮
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            showLoginPage();
+        });
+
+        // 导航栏注册按钮
+        document.getElementById('registerBtn').addEventListener('click', function() {
+            registerModal.style.display = 'flex';
+        });
+
+        // 分类卡片点击事件
+        categoryCards.forEach(card => {
+            card.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                switch(category) {
+                    case 'history':
+                        showContentPage('historyPage');
+                        loadCategoryContent('history', historyContent);
+                        break;
+                    case 'schools':
+                        showContentPage('schoolsPage');
+                        loadCategoryContent('schools', schoolsContent);
+                        break;
+                    case 'culture':
+                        showContentPage('culturePage');
+                        loadCategoryContent('culture', cultureContent);
+                        break;
+                    case 'production':
+                        showContentPage('productionPage');
+                        loadCategoryContent('production', productionContent);
+                        break;
+                }
+            });
+        });
+
+        // 返回主页按钮事件
+        backFromHistoryBtn.addEventListener('click', function() {
+            showMainPage();
+        });
+        backFromSchoolsBtn.addEventListener('click', function() {
+            showMainPage();
+        });
+        backFromCultureBtn.addEventListener('click', function() {
+            showMainPage();
+        });
+        backFromProductionBtn.addEventListener('click', function() {
+            showMainPage();
+        });
+
+        // 加载分类内容 - 竖向展示
+        function loadCategoryContent(category, container) {
+            container.innerHTML = '';
+            
+            const filteredData = lambNoodleData.filter(item => item.category === category);
+            
+            if (filteredData.length === 0) {
+                container.innerHTML = '<div class="no-content"><p>暂无内容</p></div>';
+                return;
+            }
+            
+            filteredData.forEach(item => {
+                const contentItem = document.createElement('div');
+                contentItem.className = 'content-item';
+                contentItem.innerHTML = `
+                    <div class="content-header">
+                        <img src="${item.image}" alt="${item.title}" class="content-image">
+                        <div class="content-text">
+                            <h3>${item.title}</h3>
+                            <p>${item.content}</p>
+                            <div class="content-tags">
+                                ${item.tags.map(tag => `<span class="content-tag">${tag}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(contentItem);
+            });
+        }
+
+        // 搜索功能
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch();
+        });
+
+        function performSearch() {
+            const query = searchInput.value.trim().toLowerCase();
+            if (!query) {
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            searchResults.style.display = 'block';
+            resultsContainer.innerHTML = '';
+
+            const filteredData = lambNoodleData.filter(item => {
+                return item.title.toLowerCase().includes(query) || 
+                       item.content.toLowerCase().includes(query) ||
+                       item.tags.some(tag => tag.toLowerCase().includes(query));
+            });
+
+            if (filteredData.length === 0) {
+                resultsContainer.innerHTML = '<div class="no-content"><p>没有找到相关结果</p></div>';
+                return;
+            }
+
+            filteredData.forEach(item => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <div class="result-header">
+                        <img src="${item.image}" alt="${item.title}" class="result-image">
+                        <div class="result-text">
+                            <h4>${item.title}</h4>
+                            <p>${item.content.substring(0, 200)}${item.content.length > 200 ? '...' : ''}</p>
+                            <div class="content-tags">
+                                ${item.tags.map(tag => `<span class="content-tag">${tag}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                resultsContainer.appendChild(resultItem);
+            });
+        }
+
+        // 模态框事件
+        toRegisterLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            registerModal.style.display = 'flex';
+        });
+
+        toLoginLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            registerModal.style.display = 'none';
+        });
+
+        closeRegister.addEventListener('click', function() {
+            registerModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', function(e) {
+            if (e.target === registerModal) {
+                registerModal.style.display = 'none';
+            }
+        });
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+        });
+    </script>
+</body>
+</html>
