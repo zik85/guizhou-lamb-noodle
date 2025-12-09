@@ -342,7 +342,7 @@
         // 页面状态
         let currentUser = null;
 
-        // DOM元素
+        // DOM元素 - 修复：确保获取searchInput和searchBtn
         const loginPage = document.getElementById('loginPage');
         const mainSection = document.getElementById('mainSection');
         const authButtons = document.getElementById('authButtons');
@@ -351,8 +351,8 @@
         const logoutBtn = document.getElementById('logoutBtn');
         const searchResults = document.getElementById('searchResults');
         const resultsContainer = document.getElementById('resultsContainer');
-        const searchBtn = document.getElementById('searchBtn');
-        const searchInput = document.getElementById('searchInput');
+        const searchInput = document.getElementById('searchInput'); // 确保获取
+        const searchBtn = document.getElementById('searchBtn');     // 确保获取
         const loginForm = document.getElementById('loginForm');
         const loginUsername = document.getElementById('loginUsername');
         const loginPassword = document.getElementById('loginPassword');
@@ -384,9 +384,6 @@
 
         // 初始化：显示登录页面
         function initializePage() {
-            // 清除localStorage以测试登录功能
-            // localStorage.removeItem('lambNoodleUser');
-            
             const savedUser = localStorage.getItem('lambNoodleUser');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
@@ -415,6 +412,9 @@
             userName.textContent = `欢迎，${currentUser.username}`;
             searchResults.style.display = 'none';
             searchInput.value = '';
+            // 确保搜索框在主页显示
+            if(searchInput) searchInput.style.display = 'block';
+            if(searchBtn) searchBtn.style.display = 'block';
         }
 
         // 隐藏所有内容页面
@@ -430,6 +430,8 @@
             mainSection.style.display = 'none';
             hideAllContentPages();
             document.getElementById(pageId).classList.add('active');
+            // 在内容页面隐藏搜索结果
+            searchResults.style.display = 'none';
         }
 
         // 登录功能 - 使用localStorage
@@ -629,13 +631,25 @@
             });
         }
 
-        // 搜索功能
-        searchBtn.addEventListener('click', performSearch);
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') performSearch();
-        });
+        // 搜索功能 - 确保事件监听器绑定
+        function bindSearchEvents() {
+            if (searchBtn) {
+                searchBtn.addEventListener('click', performSearch);
+            }
+            if (searchInput) {
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') performSearch();
+                });
+            }
+        }
 
+        // 搜索执行函数
         function performSearch() {
+            if (!searchInput || !resultsContainer || !searchResults) {
+                console.error('搜索功能初始化失败，缺少必要的DOM元素');
+                return;
+            }
+            
             const query = searchInput.value.trim().toLowerCase();
             if (!query) {
                 searchResults.style.display = 'none';
@@ -699,6 +713,7 @@
         // 初始化页面
         document.addEventListener('DOMContentLoaded', function() {
             initializePage();
+            bindSearchEvents(); // 确保绑定搜索事件
         });
     </script>
 </body>
