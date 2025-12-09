@@ -152,7 +152,7 @@
             <div class="container">
                 <h1>贵州羊肉粉 - 美食文化瑰宝</h1>
                 <p>源自贵州的传统美食，鲜香浓郁的汤底，精选羊肉与爽滑米粉的完美结合</p>
-                <!-- 关键修改：将搜索框从表单中移除 -->
+                <!-- 关键修改：将搜索框从表单中移除，防止表单提交 -->
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="搜索羊肉粉相关内容...">
                     <button type="button" id="searchBtn">搜索</button>
@@ -342,57 +342,13 @@
 
         // 页面状态
         let currentUser = null;
-
-        // 初始化所有DOM元素
-        function initializeDOMElements() {
-            // 返回一个包含所有必要DOM元素的对象
-            return {
-                loginPage: document.getElementById('loginPage'),
-                mainSection: document.getElementById('mainSection'),
-                authButtons: document.getElementById('authButtons'),
-                userInfo: document.getElementById('userInfo'),
-                userName: document.getElementById('userName'),
-                logoutBtn: document.getElementById('logoutBtn'),
-                searchResults: document.getElementById('searchResults'),
-                resultsContainer: document.getElementById('resultsContainer'),
-                searchInput: document.getElementById('searchInput'),
-                searchBtn: document.getElementById('searchBtn'),
-                loginForm: document.getElementById('loginForm'),
-                loginUsername: document.getElementById('loginUsername'),
-                loginPassword: document.getElementById('loginPassword'),
-                toRegisterLink: document.getElementById('toRegisterLink'),
-                toLoginLink: document.getElementById('toLoginLink'),
-                registerModal: document.getElementById('registerModal'),
-                closeRegister: document.getElementById('closeRegister'),
-                registerForm: document.getElementById('registerForm'),
-                regUsername: document.getElementById('regUsername'),
-                regEmail: document.getElementById('regEmail'),
-                regPassword: document.getElementById('regPassword'),
-                regConfirmPassword: document.getElementById('regConfirmPassword'),
-                registerSubmitBtn: document.getElementById('registerSubmitBtn'),
-                categoryCards: document.querySelectorAll('.category-card'),
-                historyPage: document.getElementById('historyPage'),
-                schoolsPage: document.getElementById('schoolsPage'),
-                culturePage: document.getElementById('culturePage'),
-                productionPage: document.getElementById('productionPage'),
-                historyContent: document.getElementById('historyContent'),
-                schoolsContent: document.getElementById('schoolsContent'),
-                cultureContent: document.getElementById('cultureContent'),
-                productionContent: document.getElementById('productionContent'),
-                backFromHistoryBtn: document.getElementById('backFromHistoryBtn'),
-                backFromSchoolsBtn: document.getElementById('backFromSchoolsBtn'),
-                backFromCultureBtn: document.getElementById('backFromCultureBtn'),
-                backFromProductionBtn: document.getElementById('backFromProductionBtn')
-            };
-        }
-
-        // DOM元素对象
-        let dom;
+        let searchBtn = null;
+        let searchInput = null;
+        let resultsContainer = null;
+        let searchResults = null;
 
         // 初始化：显示登录页面
         function initializePage() {
-            dom = initializeDOMElements();
-            
             const savedUser = localStorage.getItem('lambNoodleUser');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
@@ -400,163 +356,83 @@
             } else {
                 showLoginPage();
             }
-            
-            // 初始化事件监听器
-            initializeEventListeners();
         }
 
-        // 初始化事件监听器
-        function initializeEventListeners() {
-            // 登录表单
-            if (dom.loginForm) {
-                dom.loginForm.addEventListener('submit', handleLogin);
+        // 显示登录页面
+        function showLoginPage() {
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('mainSection').style.display = 'none';
+            hideAllContentPages();
+            document.getElementById('authButtons').style.display = 'flex';
+            document.getElementById('userInfo').style.display = 'none';
+        }
+
+        // 显示主页面
+        function showMainPage() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('mainSection').style.display = 'block';
+            hideAllContentPages();
+            document.getElementById('authButtons').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'flex';
+            document.getElementById('userName').textContent = `欢迎，${currentUser.username}`;
+            
+            // 关键修复：在主页面显示时重新获取搜索相关元素并绑定事件
+            initializeSearchElements();
+            
+            document.getElementById('searchResults').style.display = 'none';
+            if (searchInput) {
+                searchInput.value = '';
+            }
+        }
+
+        // 初始化搜索相关元素 - 关键修复！
+        function initializeSearchElements() {
+            searchBtn = document.getElementById('searchBtn');
+            searchInput = document.getElementById('searchInput');
+            resultsContainer = document.getElementById('resultsContainer');
+            searchResults = document.getElementById('searchResults');
+            
+            // 清除旧的事件监听器
+            if (searchBtn) {
+                searchBtn.onclick = null;
+                searchBtn.addEventListener('click', performSearch);
             }
             
-            // 注册表单
-            if (dom.registerForm) {
-                dom.registerForm.addEventListener('submit', handleRegister);
-            }
-            
-            // 搜索功能 - 关键修复
-            if (dom.searchBtn) {
-                dom.searchBtn.addEventListener('click', performSearch);
-            }
-            
-            if (dom.searchInput) {
-                dom.searchInput.addEventListener('keypress', (e) => {
+            if (searchInput) {
+                searchInput.onkeypress = null;
+                searchInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
                         e.preventDefault(); // 阻止表单提交
                         performSearch();
                     }
                 });
             }
-            
-            // 退出登录
-            if (dom.logoutBtn) {
-                dom.logoutBtn.addEventListener('click', handleLogout);
-            }
-            
-            // 导航栏按钮
-            if (document.getElementById('loginBtn')) {
-                document.getElementById('loginBtn').addEventListener('click', () => showLoginPage());
-            }
-            
-            if (document.getElementById('registerBtn')) {
-                document.getElementById('registerBtn').addEventListener('click', () => {
-                    dom.registerModal.style.display = 'flex';
-                });
-            }
-            
-            // 分类卡片点击事件
-            dom.categoryCards.forEach(card => {
-                card.addEventListener('click', function() {
-                    const category = this.getAttribute('data-category');
-                    switch(category) {
-                        case 'history':
-                            showContentPage('historyPage');
-                            loadCategoryContent('history', dom.historyContent);
-                            break;
-                        case 'schools':
-                            showContentPage('schoolsPage');
-                            loadCategoryContent('schools', dom.schoolsContent);
-                            break;
-                        case 'culture':
-                            showContentPage('culturePage');
-                            loadCategoryContent('culture', dom.cultureContent);
-                            break;
-                        case 'production':
-                            showContentPage('productionPage');
-                            loadCategoryContent('production', dom.productionContent);
-                            break;
-                    }
-                });
-            });
-            
-            // 返回主页按钮事件
-            if (dom.backFromHistoryBtn) {
-                dom.backFromHistoryBtn.addEventListener('click', () => showMainPage());
-            }
-            if (dom.backFromSchoolsBtn) {
-                dom.backFromSchoolsBtn.addEventListener('click', () => showMainPage());
-            }
-            if (dom.backFromCultureBtn) {
-                dom.backFromCultureBtn.addEventListener('click', () => showMainPage());
-            }
-            if (dom.backFromProductionBtn) {
-                dom.backFromProductionBtn.addEventListener('click', () => showMainPage());
-            }
-            
-            // 模态框事件
-            if (dom.toRegisterLink) {
-                dom.toRegisterLink.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    dom.registerModal.style.display = 'flex';
-                });
-            }
-            
-            if (dom.toLoginLink) {
-                dom.toLoginLink.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    dom.registerModal.style.display = 'none';
-                });
-            }
-            
-            if (dom.closeRegister) {
-                dom.closeRegister.addEventListener('click', () => {
-                    dom.registerModal.style.display = 'none';
-                });
-            }
-            
-            window.addEventListener('click', (e) => {
-                if (e.target === dom.registerModal) {
-                    dom.registerModal.style.display = 'none';
-                }
-            });
-        }
-
-        // 显示登录页面
-        function showLoginPage() {
-            dom.loginPage.style.display = 'flex';
-            dom.mainSection.style.display = 'none';
-            hideAllContentPages();
-            dom.authButtons.style.display = 'flex';
-            dom.userInfo.style.display = 'none';
-        }
-
-        // 显示主页面
-        function showMainPage() {
-            dom.loginPage.style.display = 'none';
-            dom.mainSection.style.display = 'block';
-            hideAllContentPages();
-            dom.authButtons.style.display = 'none';
-            dom.userInfo.style.display = 'flex';
-            dom.userName.textContent = `欢迎，${currentUser.username}`;
-            dom.searchResults.style.display = 'none';
-            dom.searchInput.value = '';
         }
 
         // 隐藏所有内容页面
         function hideAllContentPages() {
-            dom.historyPage.classList.remove('active');
-            dom.schoolsPage.classList.remove('active');
-            dom.culturePage.classList.remove('active');
-            dom.productionPage.classList.remove('active');
+            document.getElementById('historyPage').classList.remove('active');
+            document.getElementById('schoolsPage').classList.remove('active');
+            document.getElementById('culturePage').classList.remove('active');
+            document.getElementById('productionPage').classList.remove('active');
         }
 
         // 显示内容页面
         function showContentPage(pageId) {
-            dom.mainSection.style.display = 'none';
+            document.getElementById('mainSection').style.display = 'none';
             hideAllContentPages();
             document.getElementById(pageId).classList.add('active');
             // 在内容页面隐藏搜索结果
-            dom.searchResults.style.display = 'none';
+            if (searchResults) {
+                searchResults.style.display = 'none';
+            }
         }
 
-        // 登录处理函数
-        function handleLogin(e) {
+        // 登录功能
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const username = dom.loginUsername.value.trim();
-            const password = dom.loginPassword.value.trim();
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
             
             if (!username || !password) {
                 alert('请输入用户名和密码');
@@ -580,20 +456,20 @@
                 
                 localStorage.setItem('lambNoodleUser', JSON.stringify(currentUser));
                 showMainPage();
-                dom.loginForm.reset();
+                this.reset();
             } else {
                 alert('用户名或密码错误！');
             }
-        }
+        });
 
-        // 注册处理函数
-        function handleRegister(e) {
+        // 注册功能
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const username = dom.regUsername.value.trim();
-            const email = dom.regEmail.value.trim();
-            const password = dom.regPassword.value;
-            const confirmPassword = dom.regConfirmPassword.value;
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
             
             // 验证输入
             if (!username || !email || !password || !confirmPassword) {
@@ -611,7 +487,9 @@
                 return;
             }
             
-            if (!isValidEmail(email)) {
+            // 邮箱验证
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
                 alert('请输入有效的邮箱地址！');
                 return;
             }
@@ -646,31 +524,74 @@
             alert(`✅ 注册成功！\n用户名: ${username}\n邮箱: ${email}\n\n您现在可以登录了。`);
             
             // 关闭注册模态框
-            dom.registerModal.style.display = 'none';
+            document.getElementById('registerModal').style.display = 'none';
             
             // 重置表单
-            dom.registerForm.reset();
+            this.reset();
             
             // 自动切换到登录界面
-            dom.toLoginLink.click();
-        }
+            document.getElementById('toLoginLink').click();
+        });
 
-        // 退出登录处理函数
-        function handleLogout() {
+        // 退出登录
+        document.getElementById('logoutBtn').addEventListener('click', function() {
             if (confirm('确定要退出登录吗？')) {
                 localStorage.removeItem('lambNoodleUser');
                 currentUser = null;
                 showLoginPage();
             }
-        }
+        });
 
-        // 简单的邮箱验证函数
-        function isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
+        // 导航栏登录按钮
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            showLoginPage();
+        });
 
-        // 加载分类内容 - 竖向展示
+        // 导航栏注册按钮
+        document.getElementById('registerBtn').addEventListener('click', function() {
+            document.getElementById('registerModal').style.display = 'flex';
+        });
+
+        // 分类卡片点击事件
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                switch(category) {
+                    case 'history':
+                        showContentPage('historyPage');
+                        loadCategoryContent('history', document.getElementById('historyContent'));
+                        break;
+                    case 'schools':
+                        showContentPage('schoolsPage');
+                        loadCategoryContent('schools', document.getElementById('schoolsContent'));
+                        break;
+                    case 'culture':
+                        showContentPage('culturePage');
+                        loadCategoryContent('culture', document.getElementById('cultureContent'));
+                        break;
+                    case 'production':
+                        showContentPage('productionPage');
+                        loadCategoryContent('production', document.getElementById('productionContent'));
+                        break;
+                }
+            });
+        });
+
+        // 返回主页按钮事件
+        document.getElementById('backFromHistoryBtn').addEventListener('click', function() {
+            showMainPage();
+        });
+        document.getElementById('backFromSchoolsBtn').addEventListener('click', function() {
+            showMainPage();
+        });
+        document.getElementById('backFromCultureBtn').addEventListener('click', function() {
+            showMainPage();
+        });
+        document.getElementById('backFromProductionBtn').addEventListener('click', function() {
+            showMainPage();
+        });
+
+        // 加载分类内容
         function loadCategoryContent(category, container) {
             container.innerHTML = '';
             
@@ -700,21 +621,21 @@
             });
         }
 
-        // 搜索执行函数 - 关键修复
+        // 搜索执行函数 - 关键修复！
         function performSearch() {
-            if (!dom.searchInput || !dom.resultsContainer || !dom.searchResults) {
+            if (!searchInput || !resultsContainer || !searchResults) {
                 console.error('搜索功能初始化失败，缺少必要的DOM元素');
                 return;
             }
             
-            const query = dom.searchInput.value.trim().toLowerCase();
+            const query = searchInput.value.trim().toLowerCase();
             if (!query) {
-                dom.searchResults.style.display = 'none';
+                searchResults.style.display = 'none';
                 return;
             }
 
-            dom.searchResults.style.display = 'block';
-            dom.resultsContainer.innerHTML = '';
+            searchResults.style.display = 'block';
+            resultsContainer.innerHTML = '';
 
             const filteredData = lambNoodleData.filter(item => {
                 return item.title.toLowerCase().includes(query) || 
@@ -723,7 +644,7 @@
             });
 
             if (filteredData.length === 0) {
-                dom.resultsContainer.innerHTML = '<div class="no-content"><p>没有找到相关结果</p></div>';
+                resultsContainer.innerHTML = '<div class="no-content"><p>没有找到相关结果</p></div>';
                 return;
             }
 
@@ -742,9 +663,30 @@
                         </div>
                     </div>
                 `;
-                dom.resultsContainer.appendChild(resultItem);
+                resultsContainer.appendChild(resultItem);
             });
         }
+
+        // 模态框事件
+        document.getElementById('toRegisterLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('registerModal').style.display = 'flex';
+        });
+
+        document.getElementById('toLoginLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('registerModal').style.display = 'none';
+        });
+
+        document.getElementById('closeRegister').addEventListener('click', function() {
+            document.getElementById('registerModal').style.display = 'none';
+        });
+
+        window.addEventListener('click', function(e) {
+            if (e.target === document.getElementById('registerModal')) {
+                document.getElementById('registerModal').style.display = 'none';
+            }
+        });
 
         // 初始化页面
         document.addEventListener('DOMContentLoaded', function() {
